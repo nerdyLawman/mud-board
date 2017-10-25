@@ -3,7 +3,7 @@
 """A simple Multi-User Dungeon (MUD) game. Players can talk to each
 other, examine their surroundings and move between rooms.
 
-author: Mark Frimston - mfrimston@gmail.com
+based on a foundation by: Mark Frimston - mfrimston@gmail.com
 """
 
 import time
@@ -15,27 +15,33 @@ from mudserver import MudServer
 #COLORS
 RED = "\033[91m"
 BLUE = "\033[96]"
+CYAN = "\033[36m"
 STDC = "\033[93m"
 ENDC = "\033[0m"
 
+#formatting
 def highlight(term):
     return(RED + term + STDC)
 
-docsHelp = "\n\r\033[36mHELP.DOC >>>>>>>>>>>>>>>>>>\n\r"\
-    "During 1968 and 1969, a giant big number of events took place that had an impact\n\r"\
+def docFormatting(title, doc):
+    return ("\n\r" + CYAN + title + ">>>>>>>>>>>>>>>>>>\n\r" + doc + STDC + "\n\r")
+
+docsHelp = "During 1968 and 1969, a giant big number of events took place that had an impact\n\r"\
     "on the UFO field. The University of Colorado completed the government-financed\n\r"\
     "UFO study, with the study head Edward Condon presenting a very negative picture\n\r"\
     "of the worth of further UFO studies. These results enabled the U.S. Air Force to\n\r"\
     "close its administrative UFO office dubbed \"Project Blue Book.\" The press didn't\n\r"\
     "bother to look at the details of the University study and reacted only to Condon's\n\r"\
-    "summary of the study by using the media to declare that the UFO mystery was solved.\033[0m\n\r"
+    "summary of the study by using the media to declare that the UFO mystery was solved."
 
 # structure defining the rooms in the game. Try adding more rooms to the game!
 rooms = {
     "Lobby": {
         "description": "Welcome to " + highlight("LOBBY") + " feel free to gab away.",
         "exits": {"ufos": "UFOS"},
-        "docs": {"help": docsHelp},
+        "docs": {"help.txt": docsHelp,
+            "nike.txt": "Check out my rad shoezzz."
+            },
     },
     "UFOS": {
         "description": "This is the " + highlight("UFO") + " chat channel. You shouldn't be here.",
@@ -216,11 +222,11 @@ while True:
             mud.send_message(id, "Other rooms: {}".format(", ".join(rm["exits"])))
 
         # 'view' command
-        elif command == "view":
+        elif command == "view" or command == "v":
             target = params.lower()
             room = rooms[players[id]["room"]]
             if target in room["docs"]:
-                mud.send_message(id, room["docs"][target])
+                mud.send_message(id, docFormatting(params.upper(), room["docs"][target]))
 
         # 'go' command
         elif command == "go":

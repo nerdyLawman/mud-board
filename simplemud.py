@@ -14,21 +14,33 @@ from mudserver import MudServer
 
 #COLORS
 RED = "\033[91m"
+BLUE = "\033[96]"
 STDC = "\033[93m"
 ENDC = "\033[0m"
 
 def highlight(term):
     return(RED + term + STDC)
 
+docsHelp = "\n\r\033[36mHELP.DOC >>>>>>>>>>>>>>>>>>\n\r"\
+    "During 1968 and 1969, a giant big number of events took place that had an impact\n\r"\
+    "on the UFO field. The University of Colorado completed the government-financed\n\r"\
+    "UFO study, with the study head Edward Condon presenting a very negative picture\n\r"\
+    "of the worth of further UFO studies. These results enabled the U.S. Air Force to\n\r"\
+    "close its administrative UFO office dubbed \"Project Blue Book.\" The press didn't\n\r"\
+    "bother to look at the details of the University study and reacted only to Condon's\n\r"\
+    "summary of the study by using the media to declare that the UFO mystery was solved.\033[0m\n\r"
+
 # structure defining the rooms in the game. Try adding more rooms to the game!
 rooms = {
     "Lobby": {
         "description": "Welcome to " + highlight("LOBBY") + " feel free to gab away.",
         "exits": {"ufos": "UFOS"},
+        "docs": {"help": docsHelp},
     },
     "UFOS": {
         "description": "This is the " + highlight("UFO") + " chat channel. You shouldn't be here.",
         "exits": {"lobby": "Lobby"},
+        "docs": {"none": "nbothing here"},
     }
 }
 
@@ -76,6 +88,9 @@ while True:
         progressIndex += 1
         if progressIndex >= len(daveScript):
             progressIndex = 0
+            for id in players:
+                if players[id]["name"] == "dave":
+                    del(players[id])
         interval = randint(45, 98)
 
     # go through any newly connected players
@@ -160,7 +175,7 @@ while True:
                                  + "specified, e.g. 'logout'")
 
         # 'say' command
-        elif command == "say":
+        elif command == "say" or command == ">":
 
             # go through every player in the game
             for pid, pl in players.items():
@@ -192,12 +207,20 @@ while True:
                         playershere.append(players[pid]["name"])
 
             # send player a message containing the list of players in the room
-            mud.send_message(id, "Players here: {}".format(
-                                                    ", ".join(playershere)))
+            mud.send_message(id, "Players here: {}".format(", ".join(playershere)))
+
+            # send player a message containing the list of docs from this room
+            mud.send_message(id, "Docs: {}".format(", ".join(rm["docs"])))
 
             # send player a message containing the list of exits from this room
-            mud.send_message(id, "Exits are: {}".format(
-                                                    ", ".join(rm["exits"])))
+            mud.send_message(id, "Other rooms: {}".format(", ".join(rm["exits"])))
+
+        # 'view' command
+        elif command == "view":
+            target = params.lower()
+            room = rooms[players[id]["room"]]
+            if target in room["docs"]:
+                mud.send_message(id, room["docs"][target])
 
         # 'go' command
         elif command == "go":
@@ -254,4 +277,10 @@ while True:
         # some other, unrecognised command
         else:
             # send back an 'unknown command' message
-            mud.send_message(id, "Unknown command '{}'".format(command))
+            # mud.send_message(id, "Unknown command '{}'".format(command))
+            # go through every player in the game
+            for pid, pl in players.items():
+                # if they're in the same room as the player
+                if players[pid]["room"] == players[id]["room"]:
+                    # send them a message telling them what the player said
+                    mud.send_message(pid, "{}{}".format(highlight(players[id]["name"] + " says: "), params))

@@ -8,9 +8,12 @@ based on a foundation by: Mark Frimston - mfrimston@gmail.com
 
 import time
 from random import randint
+from blessed import Terminal
 
 # import the MUD server class
 from mudserver import MudServer
+
+term = Terminal()
 
 #COLORS
 RED = "\033[91m"
@@ -24,7 +27,7 @@ def highlight(term):
     return(RED + term + STDC)
 
 def docFormatting(title, doc):
-    return ("\n\r" + CYAN + title + ">>>>>>>>>>>>>>>>>>\n\r" + doc + STDC + "\n\r")
+    return ("\n\r" + term.cyan_on_red(title) + ">>>>>>>>>>>>>>>>>>\n\r" + doc + "\n\r")
 
 docsHelp = "During 1968 and 1969, a giant big number of events took place that had an impact\n\r"\
     "on the UFO field. The University of Colorado completed the government-financed\n\r"\
@@ -39,7 +42,7 @@ rooms = {
     "Lobby": {
         "description": "Welcome to " + highlight("LOBBY") + " feel free to gab away.",
         "exits": {"ufos": "UFOS"},
-        "docs": {"help.txt": docsHelp,
+        "docs": {"help.txt": term.bright_cyan(docsHelp),
             "nike.txt": "Check out my rad shoezzz."
             },
     },
@@ -65,6 +68,7 @@ daveScript = ["Hello",
 players[id] = {
     "name": "Dave",
     "room": "Lobby",
+    "progress": 0,
     "script": daveScript,
 }
 
@@ -86,19 +90,6 @@ while True:
     # us up-to-date information
     mud.update()
 
-    mudTimer += 1
-
-    if mudTimer%interval == 0:
-        # go through every player in the game
-        mud.send_message(id, highlight("Dave says: ") + daveScript[progressIndex])
-        progressIndex += 1
-        if progressIndex >= len(daveScript):
-            progressIndex = 0
-            for id in players:
-                if players[id]["name"] == "dave":
-                    del(players[id])
-        interval = randint(45, 98)
-
     # go through any newly connected players
     for id in mud.get_new_players():
 
@@ -110,6 +101,7 @@ while True:
         players[id] = {
             "name": None,
             "room": None,
+            "progress": 0,
         }
 
         # send the new player a prompt for their name
@@ -127,15 +119,15 @@ while True:
         for pid, pl in players.items():
             # send each player a message to tell them about the diconnected
             # player
-            mud.send_message(pid, "{} quit the game".format(
-                                                        players[id]["name"]))
+            mud.send_message(pid, "{} quit the game".format(players[id]["name"]))
 
         # remove the player's entry in the player dictionary
         del(players[id])
 
     # go through any new commands sent from players
     for id, command, params in mud.get_commands():
-
+        mud.send_message(id, term.clear())
+        mud.send_message(id, term.move(0,0))
         # if for any reason the player isn't in the player map, skip them and
         # move on to the next one
         if id not in players:
@@ -290,3 +282,13 @@ while True:
                 if players[pid]["room"] == players[id]["room"]:
                     # send them a message telling them what the player said
                     mud.send_message(pid, "{}{}".format(highlight(players[id]["name"] + " says: "), params))
+
+    #mud.send_message(id, term.move_y(30) + ">")
+    mudTimer += 1
+    if mudTimer % interval == 0:
+        if players[id]["room"]:
+            #mud.send_message(id, highlight("Dave says: ") + daveScript[players[id]["progress"]])
+            players[id]["progress"] += 1
+            if players[id]["progress"] >= len(daveScript):
+                players[id]["progress"] = 0
+            interval = randint(45, 98)

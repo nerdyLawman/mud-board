@@ -12,7 +12,10 @@ import socket
 import select
 import time
 import sys
+from blessed import Terminal
 
+# blessed session
+term = Terminal()
 
 class MudServer(object):
     """A basic server for text-based Multi-User Dungeon (MUD) games.
@@ -185,6 +188,7 @@ class MudServer(object):
         # message on its own line
         messageColor = "\033[93m"
         endC = "\033[0m"
+        #self._attempt_send(to, term.bright_blue(message +"\n\r"))
         self._attempt_send(to, messageColor+message+"\n\r"+endC)
 
     def shutdown(self):

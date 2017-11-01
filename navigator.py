@@ -22,17 +22,27 @@ def main():
     print(term.clear())
     print(term.on_blue(" ") * term.width)
     print(term.move(0,0))
-    print(term.cyan_on_blue("tel:") + term.move_x(third) + term.bright_magenta_on_blue("666-666-6666") + term.move_x(tthird) + "HET")
+    print(term.cyan_on_blue("tel:") + term.move_x(third) \
+        + term.bright_magenta_on_blue("666-666-6666") + term.move_x(tthird) \
+        + term.cyan_on_blue("HET"))
     print(term.cyan_on_blue("tel:") + term.move_x(third) + "666-666-6666")
     print(term.cyan_on_blue("tel:") + term.move_x(third) + "666-666-6666")
+    print(term.on_bright_black(" ") * term.width)
     print(term.on_black(" ") * term.width)
     print(term.on_bright_red(" ") * term.width)
+    print(term.on_red(" ") * term.width)
     print(term.on_bright_green(" ") * term.width)
+    print(term.on_green(" ") * term.width)
     print(term.on_bright_yellow(" ") * term.width)
+    print(term.on_yellow(" ") * term.width)
     print(term.on_bright_blue(" ") * term.width)
+    print(term.on_blue(" ") * term.width)
     print(term.on_bright_magenta(" ") * term.width)
+    print(term.on_magenta(" ") * term.width)
     print(term.on_bright_cyan(" ") * term.width)
+    print(term.on_cyan(" ") * term.width)
     print(term.on_bright_white(" ") * term.width)
+    print(term.on_white(" ") * term.width)
 
 if __name__ == '__main__':
     main()
